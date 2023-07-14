@@ -1,2 +1,3 @@
-# php-csv-handler
-CSV handler for PHP
+# CSV handler for PHP
+
+See example.php
