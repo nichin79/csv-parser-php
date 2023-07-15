@@ -3,6 +3,7 @@ namespace Nichin79\CSV;
 
 class CSV
 {
+  private $file;
   private $fp;
   private $parse_header;
   private $header;
@@ -13,16 +14,14 @@ class CSV
   {
     if (!is_file($file)) {
       throw new \Exception("Unable to locate $file");
+    } else {
+      $this->file = $file;
     }
 
     $this->fp = fopen($file, "r");
     $this->parse_header = $parse_header;
     $this->delimiter = $delimiter;
     $this->length = $length;
-
-    if ($this->parse_header) {
-      $this->header = fgetcsv($this->fp, $this->length, $this->delimiter);
-    }
   }
 
   function __destruct()
@@ -34,6 +33,10 @@ class CSV
 
   function get($max_lines = 0)
   {
+    if ($this->parse_header) {
+      $this->header = fgetcsv($this->fp, $this->length, $this->delimiter);
+    }
+
     //if $max_lines is set to 0, then get all the data
     $data = array();
 
@@ -56,5 +59,17 @@ class CSV
         $line_count++;
     }
     return $data;
+  }
+
+  function normalize()
+  {
+    $s = file_get_contents($this->file);
+
+    // Convert all line-endings to UNIX format.
+    $s = str_replace(array("\r\n", "\r", "\n"), "\n", $s);
+
+    // Don't allow out-of-control blank lines.
+    $s = preg_replace("/\n{3,}/", "\n\n", $s);
+    file_put_contents($this->file, $s);
   }
 }
