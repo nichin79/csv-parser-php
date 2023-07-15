@@ -81,9 +81,7 @@ class CSV
 
   function parse_header()
   {
-    if ($this->parse_header) {
-      $this->header = fgetcsv($this->fp, $this->length, $this->delimiter);
-    }
+    return fgetcsv($this->fp, $this->length, $this->delimiter);
   }
 
   function clean_header()
