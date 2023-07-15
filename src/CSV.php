@@ -6,11 +6,12 @@ class CSV
   private $file;
   private $fp;
   private $parse_header;
+  private $clean_header;
   private $header;
   private $delimiter;
   private $length;
 
-  public function __construct($file, $parse_header = false, $delimiter = ",", $length = 8000)
+  public function __construct($file, $parse_header = false, $clean_header = false, $delimiter = ",", $length = 8000)
   {
     if (!is_file($file)) {
       throw new \Exception("Unable to locate $file");
@@ -20,6 +21,7 @@ class CSV
 
     $this->fp = fopen($file, "r");
     $this->parse_header = $parse_header;
+    $this->clean_header = $clean_header;
     $this->delimiter = $delimiter;
     $this->length = $length;
   }
@@ -35,6 +37,10 @@ class CSV
   {
     if ($this->parse_header) {
       $this->header = fgetcsv($this->fp, $this->length, $this->delimiter);
+    }
+
+    if ($this->parse_header && $this->clean_header) {
+      $this->header = $this->clean_header();
     }
 
     //if $max_lines is set to 0, then get all the data
@@ -71,5 +77,23 @@ class CSV
     // Don't allow out-of-control blank lines.
     $s = preg_replace("/\n{3,}/", "\n\n", $s);
     file_put_contents($this->file, $s);
+  }
+
+  function parse_header()
+  {
+    if ($this->parse_header) {
+      $this->header = fgetcsv($this->fp, $this->length, $this->delimiter);
+    }
+  }
+
+  function clean_header()
+  {
+    $new_header = [];
+    foreach ($this->header as $header) {
+      $header = str_replace(' ', '_', strtolower($header));
+      $header = preg_replace('/[^A-Za-z0-9\_]/', '', $header);
+      $new_header[] = $header;
+    }
+    return $new_header;
   }
 }
