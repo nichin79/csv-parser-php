@@ -35,12 +35,10 @@ class CSV
 
   function get($max_lines = 0)
   {
-    if ($this->parse_header) {
-      $this->header = fgetcsv($this->fp, $this->length, $this->delimiter);
-    }
-
-    if ($this->parse_header && $this->clean_header) {
-      $this->header = $this->clean_header();
+    if ($this->clean_header) {
+      $this->clean_header();
+    } else if ($this->parse_header) {
+      $this->parse_header();
     }
 
     //if $max_lines is set to 0, then get all the data
@@ -81,17 +79,20 @@ class CSV
 
   function parse_header()
   {
-    return fgetcsv($this->fp, $this->length, $this->delimiter);
+    $this->header = fgetcsv($this->fp, $this->length, $this->delimiter);
+    return $this->header;
   }
 
   function clean_header()
   {
-    $new_header = [];
-    foreach ($this->header as $header) {
+    $orig = fgetcsv($this->fp, $this->length, $this->delimiter);
+    $new = [];
+    foreach ($orig as $header) {
       $header = str_replace(' ', '_', strtolower($header));
       $header = preg_replace('/[^A-Za-z0-9\_]/', '', $header);
-      $new_header[] = $header;
+      $new[] = $header;
     }
-    return $new_header;
+    $this->header = $new;
+    return $this->header;
   }
 }
