@@ -1,6 +1,6 @@
 {
-    "name": "nichin79/php-csv-handler",
-    "description": "CSV handler for PHP",
+    "name": "nichin79/csv-parser-php",
+    "description": "CSV Parser for PHP",
     "type": "library",
     "authors": [
         {
